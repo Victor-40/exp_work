@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My first Vue app</title>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/vue"></script>
+  <meta enco>
+</head>
+<body style="margin-left: 10%;">
+  <div id="app">
+     <h2>{{ message }}</h2> 
+    <hr>
+    <button @click='req'>Request</button>
+
+    <!-- <div v-for='(name, key) in cfg'>
+      <p>{{key}}</p> 
+    </div> -->
+    <hr>
+
+    <h3>Choose Virtual Machine:</h3>
+    <div v-for='(name, key) in cfg'  @change='clearSn'>
+        <input type="radio" v-bind:value="key" v-model="selectedVm">
+        <label>{{key}}</label><br>
+    </div>
+    <hr>
+    <span v-if="selectedVm!==null">Выбрано: {{selectedVm}}</span>
+    <br>
+    <div v-if="selectedVm!==null">
+      <h3>Choose Snapshot:</h3>
+      <div v-for='sn in cfg[selectedVm].sn'>
+          <input type="radio" v-bind:value="sn" v-model="selectedSn">
+          <label>{{sn}}</label><br>
+      </div>
+      <p> Выбрано: {{selectedSn}}</p>
+      </div>
+  </div>
+  <script>
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Victor!',
+        cfg: {},
+        selectedVm: null,
+        selectedSn: null
+      },
+
+      methods: {
+        req: function() {
+          this.cfg = {};
+          this.selectedVm = null;
+          const url = 'http://127.0.0.1:5000/api/cfg';
+          fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json;charset=utf-8'
+            }
+          })
+          .then(response => response.json())     // преобразуем ответ в json
+          .then(data => {
+          // console.log(data);
+          this.cfg = data; 
+          })
+          .catch(error => console.error(error));
+        },
+        single: function() {
+            const url = 'http://127.0.0.1:5000/api/single';
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(this.user)
+                })
+              .then(response => response.json())     // преобразуем ответ в json
+              .then(data => {
+              console.log(data);
+              this.key1 = data['key1']; 
+              this.key2 = data['key2']; 
+              this.key3 = data['key3']; 
+              })
+              .catch(error => console.error(error));
+
+          }, clearSn: function(){
+            this.selectedSn = null;
+          }
+    }
+    })
+  </script>
+</body>
+</html>
