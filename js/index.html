@@ -10,12 +10,11 @@
   <div id="app">
      <h2>{{ message }}</h2> 
     <hr>
-    <button @click='req'>Request</button>
-
-    <!-- <div v-for='(name, key) in cfg'>
-      <p>{{key}}</p> 
-    </div> -->
-    <hr>
+    <h3>Setup:</h3>
+    <input v-model="setupPath" placeholder="Input setup path" size="150">
+    <br>
+    <button id='req' @click='req' style="margin-top: 20px;">Request VM</button>
+    <br>
 
     <h3>Choose Virtual Machine:</h3>
     <div v-for='(name, key) in cfg'  @change='clearSn'>
@@ -23,7 +22,7 @@
         <label>{{key}}</label><br>
     </div>
     <hr>
-    <span v-if="selectedVm!==null">Выбрано: {{selectedVm}}</span>
+    <!-- <span v-if="selectedVm!==null">Выбрано: {{selectedVm}}</span> -->
     <br>
     <div v-if="selectedVm!==null">
       <h3>Choose Snapshot:</h3>
@@ -31,8 +30,23 @@
           <input type="radio" v-bind:value="sn" v-model="selectedSn">
           <label>{{sn}}</label><br>
       </div>
-      <p> Выбрано: {{selectedSn}}</p>
-      </div>
+      <hr>
+      <table border='1' cellpadding='7' bordercolor='silver'>
+        <tr>
+          <td>Setup path:</td>
+          <td>{{setupPath}}</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine:</td>
+          <td>{{selectedVm}}</td>
+        </tr>
+        <tr>
+          <td>Snapshot:</td>
+          <td>{{selectedSn}}</td>
+        </tr>
+      </table>
+    </div>
+    <button id='strt' @click='singleTask' style="margin-top: 20px;">Start single task</button>
   </div>
   <script>
 
@@ -42,7 +56,9 @@
         message: 'Hello Victor!',
         cfg: {},
         selectedVm: null,
-        selectedSn: null
+        selectedSn: null,
+        setupPath: null,
+        singleCfg: {}
       },
 
       methods: {
@@ -63,28 +79,30 @@
           })
           .catch(error => console.error(error));
         },
-        single: function() {
+        clearSn: function(){
+            this.selectedSn = null;
+        },
+        singleTask: function(){
+            this.singleCfg.path = this.setupPath;
+            this.singleCfg.vm = this.selectedVm;
+            this.singleCfg.snapshot = this.selectedSn;
+            console.log(this.singleCfg);
+
             const url = 'http://127.0.0.1:5000/api/single';
             fetch(url, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json;charset=utf-8'
                 },
-                body: JSON.stringify(this.user)
-                })
+                body: JSON.stringify(this.singleCfg)
+              })
               .then(response => response.json())     // преобразуем ответ в json
               .then(data => {
               console.log(data);
-              this.key1 = data['key1']; 
-              this.key2 = data['key2']; 
-              this.key3 = data['key3']; 
               })
               .catch(error => console.error(error));
-
-          }, clearSn: function(){
-            this.selectedSn = null;
-          }
-    }
+        }
+      }
     })
   </script>
 </body>
