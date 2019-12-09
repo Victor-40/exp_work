@@ -1,37 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>My first Vue app</title>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <script src="https://unpkg.com/vue"></script>
-  <meta enco>
+  <meta enco />
 </head>
+
 <body style="margin-left: 10%;">
   <div id="app">
-     <h2>{{ message }}</h2> 
-    <hr>
+    <h2>{{ message }}</h2>
+    <hr />
     <h3>Setup:</h3>
-    <input v-model="setupPath" placeholder="Input setup path" size="150">
-    <br>
-    <button id='req' @click='req' style="margin-top: 20px;">Request VM</button>
-    <br>
+    <input v-model="setupPath" placeholder="Input setup path" size="150" />
+    <br />
+    <button id="req" @click="req" style="margin-top: 20px;">
+      Request VM
+    </button>
+    <br />
 
     <h3>Choose Virtual Machine:</h3>
-    <div v-for='(name, key) in cfg'  @change='clearSn'>
-        <input type="radio" v-bind:value="key" v-model="selectedVm">
-        <label>{{key}}</label><br>
+    <div v-for="(name, key) in cfg" @change="clearSn">
+      <input type="radio" v-bind:value="key" v-model="selectedVm" />
+      <label>{{key}}</label><br />
     </div>
-    <hr>
+    <hr />
     <!-- <span v-if="selectedVm!==null">Выбрано: {{selectedVm}}</span> -->
-    <br>
+    <br />
     <div v-if="selectedVm!==null">
       <h3>Choose Snapshot:</h3>
-      <div v-for='sn in cfg[selectedVm].sn'>
-          <input type="radio" v-bind:value="sn" v-model="selectedSn">
-          <label>{{sn}}</label><br>
+      <div v-for="sn in cfg[selectedVm].sn">
+        <input type="radio" v-bind:value="sn" v-model="selectedSn" />
+        <label>{{sn}}</label><br />
       </div>
-      <hr>
-      <table border='1' cellpadding='7' bordercolor='silver'>
+      <hr />
+      <table border="1" cellpadding="7" bordercolor="silver">
         <tr>
           <td>Setup path:</td>
           <td>{{setupPath}}</td>
@@ -46,64 +50,72 @@
         </tr>
       </table>
     </div>
-    <button id='strt' @click='singleTask' style="margin-top: 20px;">Start single task</button>
+    <button id="strt" @click="singleTask" style="margin-top: 20px;">
+      Start single task
+    </button>
+    <p>Task status: {{messageOk}}</p>
   </div>
+  
   <script>
-
     var app = new Vue({
-      el: '#app',
+      el: "#app",
       data: {
-        message: 'Hello Victor!',
+        message: "Hello Victor!",
         cfg: {},
         selectedVm: null,
         selectedSn: null,
         setupPath: null,
-        singleCfg: {}
+        singleCfg: {},
+        messageOk: 'Not started'
       },
 
       methods: {
-        req: function() {
+        req: function () {
           this.cfg = {};
           this.selectedVm = null;
-          const url = 'http://127.0.0.1:5000/api/cfg';
+          const url = "http://127.0.0.1:5000/api/cfg";
           fetch(url, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json;charset=utf-8'
+              "Content-Type": "application/json;charset=utf-8"
             }
           })
-          .then(response => response.json())     // преобразуем ответ в json
-          .then(data => {
-          // console.log(data);
-          this.cfg = data; 
-          })
-          .catch(error => console.error(error));
+            .then(response => response.json()) // преобразуем ответ в json
+            .then(data => {
+              // console.log(data);
+              this.cfg = data;
+            })
+            .catch(error => console.error(error));
         },
-        clearSn: function(){
-            this.selectedSn = null;
+        clearSn: function () {
+          this.selectedSn = null;
+          this.messageOk ='Not started';
         },
-        singleTask: function(){
-            this.singleCfg.path = this.setupPath;
-            this.singleCfg.vm = this.selectedVm;
-            this.singleCfg.snapshot = this.selectedSn;
-            console.log(this.singleCfg);
+        singleTask: function () {
+          this.singleCfg.path = this.setupPath;
+          this.singleCfg.vm = this.selectedVm;
+          this.singleCfg.snapshot = this.selectedSn;
+          this.messageOk = 'Running'
+          console.log(this.singleCfg);
 
-            const url = 'http://127.0.0.1:5000/api/single';
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify(this.singleCfg)
-              })
-              .then(response => response.json())     // преобразуем ответ в json
-              .then(data => {
+          const url = "http://127.0.0.1:5000/api/single";
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json;charset=utf-8"
+            },
+            body: JSON.stringify(this.singleCfg)
+          })
+            .then(response => response.json()) // преобразуем ответ в json
+            .then(data => {
               console.log(data);
-              })
-              .catch(error => console.error(error));
+              this.messageOk ='Finished'
+            })
+            .catch(error => console.error(error));
         }
       }
-    })
+    });
   </script>
 </body>
+
 </html>
