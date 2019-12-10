@@ -31,6 +31,8 @@ root_host_test = r'D:\Testing\Test-1'
 root_guest_test = r'c:\Test'
 root_report = r'\\rum-cherezov-dt\!Reports'
 
+host = vix.VixHost(service_provider=3)
+
 
 def make_job_ini_file(_dct, _ini):
     config = configparser.ConfigParser()
@@ -56,7 +58,6 @@ def make_cfg_dict(_setup, _name, _report, _vm):
 
 
 class SingleTask(Resource):
-    host = vix.VixHost(service_provider=3)
 
     def get(self):
         return {'message': 'no'}
@@ -73,7 +74,7 @@ class SingleTask(Resource):
         _d = make_cfg_dict(setup_path, name_setup, root_report, vm_name)
         make_job_ini_file(_d, os.path.join(root_host_test, 'cfg.ini'))
 
-        vm = self.host.open_vm(snapshot_path)
+        vm = host.open_vm(snapshot_path)
         work_snapshot = vm.snapshot_get_named(args.snapshot)
         vm.snapshot_revert(work_snapshot)
 
@@ -102,6 +103,19 @@ class GetCfg(Resource):
     def get(self):
         with open('snap_dct.json') as fi:
             cfg = json.load(fi)
+
+        for _vm in cfg:
+            try:
+                vm = host.open_vm(cfg[_vm]['pth'])
+            except vix.VixError as e:
+                print(e)
+                print(cfg[_vm]['pth'])
+                sys.exit(1)
+            if vm.is_running:
+                cfg[_vm]['status'] = 'busy'
+            else:
+                cfg[_vm]['status'] = 'free'
+
         return cfg
 
 
