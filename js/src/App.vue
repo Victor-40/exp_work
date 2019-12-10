@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
 
     <h2>{{ message }}</h2>
+    <HelloWorld msg="Welcome to Your Vue.js App"  :rootList="rootList"/>
     <hr />
     <h3>Setup:</h3>
     <input v-model="setupPath" placeholder="Input setup path" size="150" />
@@ -13,9 +13,9 @@
     </button>
     <br />
 
-    <h3>Choose Virtual Machine:</h3>
+    <h3 v-show="headerVis">Choose Virtual Machine:</h3>
     <table>
-      <tr>
+      <tr v-show="headerVis">
         <th style="text-align:center;">Free</th>
         <th style="text-align:center;">Busy</th>
       </tr>
@@ -78,13 +78,13 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   name: 'app',
-  // components: {
-  //   HelloWorld
-  // },
+  components: {
+    HelloWorld
+  },
         data: function() {return {
         message: "Hello Victor!",
         cfg: {},
@@ -92,6 +92,9 @@ export default {
         selectedSn: null,
         setupPath: null,
         singleCfg: {},
+        headerVis: null,
+        rootList: ["CFW-2020", "CFW-2021", "EFD.LAB-2019", "EFD.LAB-2020", "EFD.NX-2019", "EFD.NX-2020", "EFD.PRO-2019",
+                    "EFD.PRO-2020", "EFD.SE-2019", "EFD.SE-2020", "EFD.V5-2019", "EFD.V5-2020"],
         messageOk: 'Not started'
       }},
 
@@ -99,6 +102,7 @@ export default {
         req: function () {
           this.cfg = {};
           this.selectedVm = null;
+          this.headerVis = '1'
           const url = "http://127.0.0.1:5000/api/cfg";
           fetch(url, {
             method: "GET",
